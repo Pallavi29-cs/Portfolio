@@ -23,7 +23,7 @@ const Subtitle = styled.p`
 
 const ContentLayout = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr; /* Split into Resume Summary and Skills Matrix */
+  grid-template-columns: 1.2fr 1fr;
   gap: 50px;
 
   @media (max-width: 768px) {
@@ -80,7 +80,7 @@ const TextMuted = styled.div`
 `;
 
 const BulletDescription = styled.p`
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   opacity: 0.85;
   margin: 10px 0 0 0;
@@ -108,7 +108,6 @@ const SkillPill = styled.span`
 `;
 
 function About() {
-  // Your true core engineering skills from your uploaded resume data
   const technicalSkills = [
     "Python", "Java", "C++", "HTML & CSS", "JavaScript", 
     "React.js", "Node.js", "Machine Learning", "Streamlit", 
@@ -126,7 +125,6 @@ function About() {
         <Subtitle>Professional summary and academic foundations from my resume.</Subtitle>
 
         <ContentLayout>
-          {/* Left Column: Education & Academic Focus */}
           <div>
             <InfoCard>
               <CardHeading>🎓 Education Background</CardHeading>
@@ -159,7 +157,6 @@ function About() {
             </InfoCard>
           </div>
 
-          {/* Right Column: Full Skills Inventory Matrix */}
           <div>
             <InfoCard>
               <CardHeading>💻 Technical Core Competencies</CardHeading>
@@ -180,4 +177,3 @@ function About() {
 }
 
 export default About;
-

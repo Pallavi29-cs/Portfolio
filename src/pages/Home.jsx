@@ -2,14 +2,13 @@ import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import profileImg from '../assets/profile.jpeg';
 
-// Spans the full height and width of the screen with comfortable 10% edge margins
 const FullPageContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Pushes text left, photo right */
-  min-height: 80vh;               /* Uses almost the entire screen height */
-  padding: 0 10%;                 
-  gap: 5%;                        /* Fluid spacing between layout blocks */
+  justify-content: space-between;
+  min-height: 80vh;
+  padding: 0 10%;
+  gap: 5%;
   width: 100%;
   box-sizing: border-box;
 
@@ -18,7 +17,7 @@ const FullPageContainer = styled.div`
   }
 
   @media (max-width: 768px) {
-    flex-direction: column-reverse; /* Stacks image on top for mobile devices */
+    flex-direction: column-reverse;
     text-align: center;
     justify-content: center;
     padding: 40px 20px;
@@ -31,9 +30,12 @@ const TextSection = styled.div`
   flex-direction: column;
   justify-content: center;
   flex: 1;
+    display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
 `;
 
-// Massive prominent typography scales
 const MainTitle = styled.h1`
   font-size: 4.5rem;
   font-weight: 800;
@@ -49,19 +51,18 @@ const Subtitle = styled.p`
   font-size: 1.8rem;
   line-height: 1.5;
   opacity: 0.85;
-  margin: 0 0 35px 0; /* Creates comfortable spacing before the button */
+  margin: 0 0 35px 0;
   max-width: 700px;
 
   @media (max-width: 1200px) { font-size: 1.5rem; }
   @media (max-width: 768px) { font-size: 1.2rem; }
 `;
 
-// Customized interactive call-to-action button
 const ResumeButton = styled(motion.a)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-start; /* Prevents the button from expanding horizontally */
+  align-self: flex-start;
   background-color: ${(props) => props.theme.link};
   color: #ffffff;
   font-weight: bold;
@@ -73,7 +74,7 @@ const ResumeButton = styled(motion.a)`
   cursor: pointer;
 
   @media (max-width: 768px) {
-    align-self: center; /* Centers the button on mobile screens */
+    align-self: center;
   }
 `;
 
@@ -89,22 +90,19 @@ const PhotoSection = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 35vw; /* Scales fluidly with the width of the display window */
+  width: 35vw;
   height: 35vw;
   max-width: 450px;
   min-width: 250px;
   object-fit: cover;
-  border-radius: 0px; /* Crisp square borders */
+  border-radius: 0px;
   border: 6px solid ${(props) => props.theme.link};
   box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
 `;
 
-// Function name updated to Home to match your export tracking link parameters
 function Home() {
   return (
     <FullPageContainer>
-      
-      {/* Left Block: Bold Greeting Typography */}
       <TextSection>
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
@@ -114,7 +112,6 @@ function Home() {
           <MainTitle>Welcome to Pallavi's Portfolio</MainTitle>
           <Subtitle>I am a passionate engineer creating robust software interfaces.</Subtitle>
           
-          {/* Points directly to public/resume.pdf and forces a new view tab workspace */}
           <ResumeButton
             href="/Portfolio/resume.pdf"
             target="_blank"                                           
@@ -130,7 +127,6 @@ function Home() {
         </motion.div>
       </TextSection>
 
-      {/* Right Block: Elastic Spring Dropping Photo Frame */}
       <PhotoSection>
         <motion.div
           initial={{ opacity: 0, y: -250 }}
@@ -145,9 +141,9 @@ function Home() {
           <ProfileImage src={profileImg} alt="Pallavi Profile" />
         </motion.div>
       </PhotoSection>
-
     </FullPageContainer>
   );
 }
 
 export default Home;
+
