@@ -3,6 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { ThemeProvider, createGlobalStyle, styled } from 'styled-components';
 import { lightTheme, darkTheme } from './theme';
 
+// Inject dynamic styles globally into the HTML body element
 const GlobalStyle = createGlobalStyle`
   body {
     background-color: ${(props) => props.theme.body};
@@ -13,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-// App layout wrapper to keep footer pinned to bottom
+// App layout wrapper to keep footer pinned to bottom of the screen
 const AppLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -23,7 +24,7 @@ const AppLayout = styled.div`
 const StyledHeader = styled.header`
   padding: 20px 40px;
   background-color: ${(props) => props.theme.navBg};
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #333;
   display: flex;
   justify-content: space-between; /* Pushes brand left, navigation right */
   align-items: center;
@@ -47,10 +48,10 @@ const StyledLink = styled(Link)`
 `;
 
 const StyledFooter = styled.footer`
-  margin-top: auto; /* Forces footer to bottom of screen */
+  margin-top: auto; /* Forces footer down along lower boundary line */
   padding: 20px;
   text-align: center;
-  border-top: 1px solid #444;
+  border-top: 1px solid #333;
   font-size: 0.9rem;
   opacity: 0.7;
   background-color: ${(props) => props.theme.navBg};
@@ -65,15 +66,17 @@ function App() {
       <GlobalStyle />
       
       <AppLayout>
-        {/* Top Header Section */}
+        {/* Top Header Section with updated 4-link grid mapping */}
         <StyledHeader>
           <div style={{ fontWeight: 'bold', fontSize: '1.3rem' }}>PP</div>
           
           <NavLinksGroup>
-            <StyledLink to="/">About</StyledLink>
+            <StyledLink to="/">Home</StyledLink>
+            <StyledLink to="/about">About</StyledLink>
             <StyledLink to="/projects">Projects</StyledLink>
             <StyledLink to="/contact">Contact</StyledLink>
             
+            {/* Dark/Light Toggler Switch Button */}
             <button 
               onClick={toggleTheme} 
               style={{ cursor: 'pointer', padding: '6px 12px', marginLeft: '10px' }}
@@ -84,11 +87,11 @@ function App() {
         </StyledHeader>
 
         {/* Mid-Section Content View Area */}
-        <main style={{ padding: '40px flex-grow' }}>
-          <Outlet />
+        <main style={{ padding: '20px', flexGrow: 1 }}>
+          <Outlet /> {/* Renders the active page route view dynamically */}
         </main>
 
-        {/* Downside Footer Notice */}
+        {/* Downside Pinned Footer Notice */}
         <StyledFooter>
           © 2026 Graduate @ AMC Engineering College
         </StyledFooter>
