@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import api from '../api';
 
 const ContactContainer = styled.div`
   display: flex;
@@ -32,7 +34,7 @@ const Title = styled.h2`
 const InfoList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 25px; /* Perfect spacing between rows */
+  gap: 25px;
 `;
 
 const InfoRow = styled(motion.div)`
@@ -46,7 +48,7 @@ const InfoRow = styled(motion.div)`
   transition: transform 0.2s ease;
 
   &:hover {
-    transform: translateX(8px); /* Subtle shift right when hovered */
+    transform: translateX(8px);
     border-color: ${(props) => props.theme.link};
   }
 `;
@@ -84,20 +86,42 @@ const ValueLink = styled.a`
   }
 `;
 
+const platformIcons = {
+  LinkedIn: '💼',
+  GitHub: '💻',
+  Twitter: '🐦',
+  Instagram: '📸'
+};
+
 function Contact() {
-  // Stagger animation rules for the list rows
+  const [contact, setContact] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.get('/contact'),
+      api.get('/sociallinks')
+    ])
+      .then(([contactRes, socialRes]) => {
+        setContact(contactRes.data);
+        setSocialLinks(socialRes.data);
+      })
+      .catch((error) => console.error('Error fetching contact data:', error))
+      .finally(() => setLoading(false));
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 } // Elements pop in one after another
-    }
+    show: { opacity: 1, transition: { staggerChildren: 0.15 } }
   };
 
   const itemVariants = {
     hidden: { opacity: 0, x: -50 },
     show: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 100 } }
   };
+
+  if (loading) return <ContactContainer>Loading...</ContactContainer>;
 
   return (
     <ContactContainer>
@@ -108,48 +132,40 @@ function Contact() {
       >
         <ContactCard>
           <Title>Get In Touch</Title>
-          
+
           <InfoList as={motion.div} variants={containerVariants} initial="hidden" animate="show">
-            
-            {/* 1. Phone Number Row */}
-            <InfoRow variants={itemVariants}>
-              <IconBox>📞</IconBox>
-              <DetailText>
-                <Label>Phone</Label>
-                <ValueLink href="tel:+917899309770">+91-7899309770</ValueLink>
-              </DetailText>
-            </InfoRow>
 
-            {/* 2. Email Row */}
-            <InfoRow variants={itemVariants}>
-              <IconBox>✉️</IconBox>
-              <DetailText>
-                <Label>Email</Label>
-                <ValueLink href="mailto:pallavishiva2902@gmail.com">pallavishiva2902@gmail.com</ValueLink>
-              </DetailText>
-            </InfoRow>
+            {contact?.phone && (
+              <InfoRow variants={itemVariants}>
+                <IconBox>📞</IconBox>
+                <DetailText>
+                  <Label>Phone</Label>
+                  <ValueLink href={`tel:${contact.phone}`}>{contact.phone}</ValueLink>
+                </DetailText>
+              </InfoRow>
+            )}
 
-            {/* 3. LinkedIn Profile Row */}
-            <InfoRow variants={itemVariants}>
-              <IconBox>💼</IconBox>
-              <DetailText>
-                <Label>LinkedIn</Label>
-                <ValueLink href="https://www.linkedin.com/in/pallaviscs/" target="_blank" rel="noreferrer">
-                https://www.linkedin.com/in/pallaviscs/
-                </ValueLink>
-              </DetailText>
-            </InfoRow>
+            {contact?.email && (
+              <InfoRow variants={itemVariants}>
+                <IconBox>✉️</IconBox>
+                <DetailText>
+                  <Label>Email</Label>
+                  <ValueLink href={`mailto:${contact.email}`}>{contact.email}</ValueLink>
+                </DetailText>
+              </InfoRow>
+            )}
 
-            {/* 4. GitHub Profile Row */}
-            <InfoRow variants={itemVariants}>
-              <IconBox>💻</IconBox>
-              <DetailText>
-                <Label>GitHub</Label>
-                <ValueLink href="https://github.com/Pallavi29-cs" target="_blank" rel="noreferrer">
-                  https://github.com/Pallavi29-cs
-                </ValueLink>
-              </DetailText>
-            </InfoRow>
+            {socialLinks.map((link) => (
+              <InfoRow key={link.id} variants={itemVariants}>
+                <IconBox>{platformIcons[link.platform] || '🔗'}</IconBox>
+                <DetailText>
+                  <Label>{link.platform}</Label>
+                  <ValueLink href={link.url} target="_blank" rel="noreferrer">
+                    {link.url}
+                  </ValueLink>
+                </DetailText>
+              </InfoRow>
+            ))}
 
           </InfoList>
         </ContactCard>

@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import api from '../api';
 
-// This wrapper stretches tightly to fill up the screen view space without leaking downwards
 const FixedFrameContainer = styled.div`
   max-width: 1300px;
   margin: 0 auto;
@@ -10,7 +11,7 @@ const FixedFrameContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 80vh; /* Adjusts beautifully within your app main screen frame */
+  min-height: 80vh;
 `;
 
 const SectionTitle = styled.h2`
@@ -26,15 +27,14 @@ const SectionSubtitle = styled.p`
   margin: 0 0 25px 0;
 `;
 
-// A tight grid structure designed specifically to house exactly 4 elements symmetrically
 const ProjectsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Forms a balanced 2x2 grid layout block */
-  gap: 20px; /* Reduced gap size to save space */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
   width: 100%;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr; /* Fallback stack layout solely on mobile screens */
+    grid-template-columns: 1fr;
     gap: 15px;
   }
 `;
@@ -43,7 +43,7 @@ const ProjectCard = styled(motion.div)`
   background-color: ${(props) => props.theme.navBg};
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 20px; /* Slimmer inner padding */
+  padding: 20px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -79,7 +79,7 @@ const TagGroup = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 15px;
-  margin-top: auto; /* Securely locks tags near lower boundary line */
+  margin-top: auto;
 `;
 
 const TechTag = styled.span`
@@ -106,32 +106,15 @@ const ProjectLink = styled.a`
 `;
 
 function Projects() {
-  const myProjectsData = [
-    {
-      title: "Smart Helmet 3.0",
-      description: "An IoT safety system that disables motorcycle ignition if alcohol is detected or if the helmet isn't worn. Sends GPS coordinates via GSM SMS during a crash.",
-      tags: ["IoT", "MQ3 Sensors", "IR Sensors", "GPS/GSM"],
-      github: "https://github.com"
-    },
-    {
-      title: "Shop Skin Care Website",
-      description: "An e-commerce skin care platform utilizing a responsive React interface combined with a Python ML/Node.js backend for personalized routines.",
-      tags: ["React.js", "Python", "Node.js", "OpenAI", "Streamlit"],
-      github: "https://github.com"
-    },
-    {
-      title: "Stock Prediction Analysis Platform",
-      description: "Interactive financial visualizer tracking technical indicators (RSI, MACD, Bollinger Bands) backed by Hugging Face conversational AI tools.",
-      tags: ["Python", "Streamlit", "Hugging Face", "Data Visualization"],
-      github: "https://github.com"
-    },
-    {
-      title: "Dark Pattern Detector",
-      description: "Vulnerability assessor website designed to detect malicious pop-ups and SQL injections on e-commerce storefronts using Mistral AI reporting logs.",
-      tags: ["Python", "Streamlit", "Mistral AI", "Cybersecurity"],
-      github: "https://github.com"
-    }
-  ];
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/projects')
+      .then((res) => setProjects(res.data))
+      .catch((error) => console.error('Error fetching projects:', error))
+      .finally(() => setLoading(false));
+  }, []);
 
   const gridVariants = {
     hidden: { opacity: 0 },
@@ -143,6 +126,8 @@ function Projects() {
     show: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 18 } }
   };
 
+  if (loading) return <FixedFrameContainer>Loading...</FixedFrameContainer>;
+
   return (
     <FixedFrameContainer>
       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
@@ -151,25 +136,27 @@ function Projects() {
       </motion.div>
 
       <ProjectsGrid as={motion.div} variants={gridVariants} initial="hidden" animate="show">
-        {myProjectsData.map((project, index) => (
-          <ProjectCard 
-            key={index} 
+        {projects.map((project) => (
+          <ProjectCard
+            key={project.id}
             variants={cardVariants}
             whileHover={{ y: -5, boxShadow: "0px 10px 20px rgba(0,0,0,0.3)" }}
           >
             <ProjectTitle>{project.title}</ProjectTitle>
             <ProjectDescription>{project.description}</ProjectDescription>
-            
+
             <TagGroup>
-              {project.tags.map((tag, tIndex) => (
-                <TechTag key={tIndex}>{tag}</TechTag>
+              {project.technologyStack?.split(',').map((tag, tIndex) => (
+                <TechTag key={tIndex}>{tag.trim()}</TechTag>
               ))}
             </TagGroup>
 
             <div>
-              <ProjectLink href={project.github} target="_blank" rel="noreferrer">
-                💻 GitHub Code
-              </ProjectLink>
+              {project.githubUrl && (
+                <ProjectLink href={project.githubUrl} target="_blank" rel="noreferrer">
+                  💻 GitHub Code
+                </ProjectLink>
+              )}
             </div>
           </ProjectCard>
         ))}

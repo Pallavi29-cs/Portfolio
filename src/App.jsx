@@ -1,38 +1,44 @@
 import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createGlobalStyle, styled } from 'styled-components';
 import { lightTheme, darkTheme } from './theme';
 
-// Inject dynamic styles globally into the HTML body element
 const GlobalStyle = createGlobalStyle`
-  body {
-    background-color: ${(props) => props.theme.body};
-    color: ${(props) => props.theme.text};
-    font-family: sans-serif;
+  html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
     transition: all 0.3s ease;
   }
 `;
 
-// App layout wrapper to keep footer pinned to bottom of the screen
 const AppLayout = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+  background-color: ${(props) => props.theme.body};
+  color: ${(props) => props.theme.text};
 `;
 
 const StyledHeader = styled.header`
-  padding: 20px 40px;
+  height: 70px;
+  padding: 0 40px;
   background-color: ${(props) => props.theme.navBg};
   border-bottom: 1px solid #333;
   display: flex;
-  justify-content: space-between; /* Pushes brand left, navigation right */
+  justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const NavLinksGroup = styled.nav`
   display: flex;
-  gap: 25px;
+  gap: 20px;
   align-items: center;
 `;
 
@@ -40,58 +46,71 @@ const StyledLink = styled(Link)`
   color: ${(props) => props.theme.link};
   text-decoration: none;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   
-  &:hover {
-    text-decoration: underline;
-  }
+  &:hover { text-decoration: underline; }
+`;
+
+const MainContentArea = styled.main`
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
 `;
 
 const StyledFooter = styled.footer`
-  margin-top: auto; /* Forces footer down along lower boundary line */
-  padding: 20px;
-  text-align: center;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-top: 1px solid #333;
   font-size: 0.9rem;
   opacity: 0.7;
   background-color: ${(props) => props.theme.navBg};
+  flex-shrink: 0;
 `;
 
 function App() {
   const [theme, setTheme] = useState('dark');
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+  const navigate = useNavigate();
+  const role = localStorage.getItem('role');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('portfolioId');
+    navigate('/login');
+  };
 
   return (
     <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
       <GlobalStyle />
-      
       <AppLayout>
-        {/* Top Header Section with updated 4-link grid mapping */}
         <StyledHeader>
           <div style={{ fontWeight: 'bold', fontSize: '1.3rem' }}>PP</div>
-          
           <NavLinksGroup>
             <StyledLink to="/">Home</StyledLink>
             <StyledLink to="/about">About</StyledLink>
+            <StyledLink to="/experience">Experience</StyledLink>
+            <StyledLink to="/education">Education</StyledLink>
+            <StyledLink to="/skills">Skills</StyledLink>
             <StyledLink to="/projects">Projects</StyledLink>
             <StyledLink to="/contact">Contact</StyledLink>
-            
-            {/* Dark/Light Toggler Switch Button */}
-            <button 
-              onClick={toggleTheme} 
-              style={{ cursor: 'pointer', padding: '6px 12px', marginLeft: '10px' }}
-            >
+            {role === 'Admin' && <StyledLink to="/dashboard">Dashboard</StyledLink>}
+            <button onClick={toggleTheme} style={{ cursor: 'pointer', padding: '6px 12px' }}>
               {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', padding: '6px 12px' }}>
+              Logout
             </button>
           </NavLinksGroup>
         </StyledHeader>
 
-        {/* Mid-Section Content View Area */}
-        <main style={{ padding: '20px', flexGrow: 1 }}>
-          <Outlet /> {/* Renders the active page route view dynamically */}
-        </main>
+        <MainContentArea>
+          <Outlet />
+        </MainContentArea>
 
-        {/* Downside Pinned Footer Notice */}
         <StyledFooter>
           © 2026 Graduate @ AMC Engineering College
         </StyledFooter>

@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import api from '../api';
 
 const AboutContainer = styled.div`
   max-width: 1100px;
@@ -108,11 +110,32 @@ const SkillPill = styled.span`
 `;
 
 function About() {
-  const technicalSkills = [
-    "Python", "Java", "C++", "HTML & CSS", "JavaScript", 
-    "React.js", "Node.js", "Machine Learning", "Streamlit", 
-    "Hugging Face", "MySQL", "Git & GitHub", "IoT Systems"
-  ];
+  const [about, setAbout] = useState(null);
+  const [education, setEducation] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.get('/about'),
+      api.get('/education'),
+      api.get('/projects'),
+      api.get('/skills')
+    ])
+      .then(([aboutRes, educationRes, projectsRes, skillsRes]) => {
+        setAbout(aboutRes.data);
+        setEducation(educationRes.data);
+        setProjects(projectsRes.data);
+        setSkills(skillsRes.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching about page data:', error);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <AboutContainer>Loading...</AboutContainer>;
 
   return (
     <AboutContainer>
@@ -128,32 +151,28 @@ function About() {
           <div>
             <InfoCard>
               <CardHeading>🎓 Education Background</CardHeading>
-              <DetailItem>
-                <TextBold>Bachelor of Engineering (B.E.) in Computer Science</TextBold>
-                <TextMuted>AMC Engineering College, Bengaluru | 2022 - 2026</TextMuted>
-                <BulletDescription>
-                  Developing a strong foundation in core computer science primitives, software architectures, full-stack environments, and data analysis algorithms.
-                </BulletDescription>
-              </DetailItem>
+              {education.map((edu) => (
+                <DetailItem key={edu.id}>
+                  <TextBold>{edu.degree} in {edu.fieldOfStudy}</TextBold>
+                  <TextMuted>{edu.institution} | {edu.startYear} - {edu.endYear}</TextMuted>
+                  {edu.grade && <BulletDescription>Grade: {edu.grade}</BulletDescription>}
+                </DetailItem>
+              ))}
             </InfoCard>
 
             <InfoCard>
               <CardHeading>🎯 Professional Objective</CardHeading>
-              <BulletDescription>
-                Highly motivated Computer Science Engineering student tracking towards graduation in 2026. Possess proven hands-on experience designing embedded IoT systems, machine learning web modules, and user interfaces. Eager to bring my software development and clean coding competencies to a forward-thinking engineering workspace.
-              </BulletDescription>
+              <BulletDescription>{about?.longDescription}</BulletDescription>
             </InfoCard>
 
             <InfoCard>
               <CardHeading>🛠️ Key Project Highlights</CardHeading>
-              <DetailItem>
-                <TextBold>Smart Helmet 3.0 (IoT System)</TextBold>
-                <TextMuted>Hardware-to-Cloud Integration</TextMuted>
-              </DetailItem>
-              <DetailItem style={{ marginTop: '10px' }}>
-                <TextBold>AI-Backed Platforms</TextBold>
-                <TextMuted>Stock Predictor, Skin Care eCommerce, Dark Pattern Detector</TextMuted>
-              </DetailItem>
+              {projects.map((project) => (
+                <DetailItem key={project.id}>
+                  <TextBold>{project.title}</TextBold>
+                  <TextMuted>{project.technologyStack}</TextMuted>
+                </DetailItem>
+              ))}
             </InfoCard>
           </div>
 
@@ -164,8 +183,8 @@ function About() {
                 Here are the core programming languages, frameworks, libraries, and developer utilities I deploy across my software engineering pipelines:
               </p>
               <SkillGroup>
-                {technicalSkills.map((skill, index) => (
-                  <SkillPill key={index}>{skill}</SkillPill>
+                {skills.map((skill) => (
+                  <SkillPill key={skill.skillId}>{skill.skillName}</SkillPill>
                 ))}
               </SkillGroup>
             </InfoCard>
